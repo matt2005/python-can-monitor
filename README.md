@@ -28,20 +28,55 @@ Example:
 
     (1499430972.167877) can0 12E#C77FFE7FD0FFFF00
 
-## Usage
-Install the dependencies (preferably in a virtualenv)
+## Installation
+
+### 1. Create a virtual environment (recommended)
+
+    python -m venv .venv
+
+### 2. Activate the virtual environment
+
+**On Windows:**
+
+    .venv\Scripts\activate
+
+**On macOS/Linux:**
+
+    source .venv/bin/activate
+
+### 3. Install dependencies
+
+Install from requirements.txt:
+
+    pip install -r requirements.txt
+
+Or install the package in development mode:
 
     pip install -e .
 
-Launch the script
+## Usage
+
+Launch the script for live CAN monitoring:
 
     canmonitor <serial device> <baud rate>
 
-Or
+Or for offline file analysis:
 
     canmonitor -f <file name>
 
 Press Q at any time to exit the script.
+
+## Development Setup
+
+For contributors and developers who want to work on the project, additional development tools and setup instructions are available.
+
+See [Development Setup Guide](DEV_SETUP.md) for detailed instructions on:
+
+- Installing development dependencies
+- Setting up code formatting and linting tools
+- Running tests
+- VS Code configuration
+- Contributing guidelines
 
 ## Example
 
