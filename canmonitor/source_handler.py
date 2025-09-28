@@ -56,7 +56,7 @@ class SerialHandler(SourceHandler):
     def _read_until_newline(self):
         """Read data from `serial_device` until the next newline character."""
         line = self.serial_device.readline()
-        while not line.endswith(b'\n'):
+        while not line.endswith(b"\n"):
             line = line + self.serial_device.readline()
 
         return line.strip()
@@ -67,14 +67,14 @@ class SerialHandler(SourceHandler):
 
         # Split it into an array
         # (e.g. ['FRAME', 'ID=246', 'LEN=8', '8E:62:1C:F6:1E:63:63:20'])
-        frame = line.split(b':', maxsplit=3)
+        frame = line.split(b":", maxsplit=3)
 
         try:
             frame_id = int(frame[1][3:])  # get the ID from the 'ID=246' string
 
             frame_length = int(frame[2][4:])  # get the length from the 'LEN=8' string
 
-            hex_data = frame[3].replace(b':', b'')
+            hex_data = frame[3].replace(b":", b"")
             data = unhexlify(hex_data)
 
         except (IndexError, ValueError) as exc:
@@ -102,7 +102,7 @@ class CandumpHandler(SourceHandler):
 
     def open(self):
         # interface name in candump file may contain non-ascii chars so we need utf-8
-        self.file_object = open(self.file_path, 'rt', encoding='utf-8')
+        self.file_object = open(self.file_path, "rt", encoding="utf-8")
 
     def close(self):
         if self.file_object:
@@ -110,12 +110,12 @@ class CandumpHandler(SourceHandler):
 
     def get_message(self):
         line = self.file_object.readline()
-        if line == '':
+        if line == "":
             raise EOFError
         return self._parse_from_candump(line)
 
     def _parse_from_candump(self, line):
-        line = line.strip('\n')
+        line = line.strip("\n")
 
         msg_match = self.MSG_RGX.match(line)
         if msg_match is None:

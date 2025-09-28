@@ -1,0 +1,3 @@
+# Runtime dependencies
+pyserial==3.2.1
+windows-curses>=2.4.0; sys_platform == "win32"

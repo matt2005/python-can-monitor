@@ -5,3 +5,5 @@ bin
 include
 lib
 canmonitor.egg-info
+.venv
+
