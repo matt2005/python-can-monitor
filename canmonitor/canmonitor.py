@@ -105,7 +105,7 @@ def main(stdscr, reading_thread):
         ):  # Timeout needed in order to react to user input
             max_y, max_x = win.getmaxyx()
 
-            column_width = 50
+            column_width = 100
             id_column_start = 2
             bytes_column_start = 13
             text_column_start = 38
@@ -118,8 +118,8 @@ def main(stdscr, reading_thread):
             # Setting up column headers
             for i in range(0, num_columns):
                 win.addstr(1, id_column_start + i * column_width, "ID")
-                win.addstr(1, bytes_column_start + i * column_width, "Bytes")
-                win.addstr(1, text_column_start + i * column_width, "Text")
+                win.addstr(1, 25 + bytes_column_start + i * column_width, "Bytes")
+                win.addstr(1, 30 + text_column_start + i * column_width, "Text")
 
             win.addstr(3, id_column_start, "Press 'q' to quit")
 
@@ -146,21 +146,21 @@ def main(stdscr, reading_thread):
                     )
                     win.addstr(
                         row,
-                        id_column_start + 5 + current_column * column_width,
+                        id_column_start + 18 + current_column * column_width,
                         "%X".ljust(5) % frame_id,
                     )
 
                     # print frame bytes
                     win.addstr(
                         row,
-                        bytes_column_start + current_column * column_width,
-                        msg_bytes.ljust(23),
+                        25 + bytes_column_start + current_column * column_width,
+                        msg_bytes.ljust(28),
                     )
 
                     # print frame text
                     win.addstr(
                         row,
-                        text_column_start + current_column * column_width,
+                        30 + text_column_start + current_column * column_width,
                         msg_str.ljust(8),
                     )
 

@@ -6,8 +6,7 @@ from unittest.mock import patch
 
 import serial
 
-from canmonitor.source_handler import (CandumpHandler, InvalidFrame,
-                                       SerialHandler)
+from canmonitor.source_handler import CandumpHandler, InvalidFrame, SerialHandler
 
 TEST_DATA_DIR = path.abspath(path.join(path.dirname(__file__), "data"))
 
@@ -71,7 +70,7 @@ class CandumpHandlerTestCase(unittest.TestCase):
     def tearDown(self):
         self.candump_handler.close()
 
-    @patch('time.sleep')  # Mock time.sleep to avoid delays in tests
+    @patch("time.sleep")  # Mock time.sleep to avoid delays in tests
     def test_get_message(self, mock_sleep):
         messages = [self.candump_handler.get_message() for _ in range(7)]
 
