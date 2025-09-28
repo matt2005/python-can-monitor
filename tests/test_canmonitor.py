@@ -65,8 +65,8 @@ class CanmonitorTestCase(unittest.TestCase):
 
         # Test the dynamic field width calculations
         max_decimal_width = 10  # As defined in canmonitor.py
-        max_hex_width = 8       # As defined in canmonitor.py
-        id_spacing = 2          # Minimum gap between decimal and hex
+        max_hex_width = 8  # As defined in canmonitor.py
+        id_spacing = 2  # Minimum gap between decimal and hex
 
         # Verify the spacing calculation
         hex_offset = max_decimal_width + id_spacing
@@ -122,7 +122,7 @@ class CanmonitorTestCase(unittest.TestCase):
         # Simulate the dynamic layout constants from canmonitor.py
         id_column_start = 2
         max_decimal_width = 10  # Support for 32-bit unsigned integers
-        id_spacing = 2          # Minimum gap between decimal and hex
+        id_spacing = 2  # Minimum gap between decimal and hex
         hex_offset = max_decimal_width + id_spacing  # Dynamic offset
 
         # Test case: Maximum 32-bit unsigned integer
@@ -141,14 +141,15 @@ class CanmonitorTestCase(unittest.TestCase):
         gap = hex_pos - decimal_end_pos
 
         # Verify there's exactly the expected spacing
-        self.assertEqual(gap, id_spacing,
-                         f"Expected {id_spacing} chars gap, got {gap}")
+        self.assertEqual(gap, id_spacing, f"Expected {id_spacing} chars gap, got {gap}")
 
         # Verify this handles the maximum case without overlap
-        no_overlap = (decimal_end_pos <= hex_pos)
-        self.assertTrue(no_overlap,
-                        f"Decimal ends at {decimal_end_pos}, "
-                        f"hex starts at {hex_pos} - should not overlap")
+        no_overlap = decimal_end_pos <= hex_pos
+        self.assertTrue(
+            no_overlap,
+            f"Decimal ends at {decimal_end_pos}, "
+            f"hex starts at {hex_pos} - should not overlap",
+        )
 
         # Test that this also works for the original Issue #18 case (9 digits)
         issue_18_decimal_end = id_column_start + 9
@@ -156,5 +157,7 @@ class CanmonitorTestCase(unittest.TestCase):
         # Should have even more spacing than needed for Issue #18
         issue_18_gap = hex_pos - issue_18_decimal_end
         self.assertGreaterEqual(
-            issue_18_gap, id_spacing,
-            "Should provide adequate spacing for Issue #18 case too")
+            issue_18_gap,
+            id_spacing,
+            "Should provide adequate spacing for Issue #18 case too",
+        )

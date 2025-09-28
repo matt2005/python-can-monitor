@@ -107,8 +107,8 @@ def main(stdscr, reading_thread):
 
             # Dynamic column sizing for 32-bit CAN IDs
             max_decimal_width = 10  # Max 32-bit unsigned: 4,294,967,295 (10 digits)
-            max_hex_width = 8       # Max 32-bit hex: FFFFFFFF (8 characters)
-            id_spacing = 2          # Minimum gap between decimal and hex
+            max_hex_width = 8  # Max 32-bit hex: FFFFFFFF (8 characters)
+            id_spacing = 2  # Minimum gap between decimal and hex
 
             decimal_field_width = max_decimal_width
             hex_field_width = max_hex_width
