@@ -44,25 +44,57 @@ Example:
 
     source .venv/bin/activate
 
-### 3. Install dependencies
+### 3. Install the package
 
-Install from requirements.txt:
+#### Option A: Install from requirements.txt (basic setup)
 
     pip install -r requirements.txt
 
-Or install the package in development mode:
+#### Option B: Install the package (recommended)
+
+This installs the package and creates a `canmonitor` command:
 
     pip install -e .
 
+#### Option C: Install from setup.py directly
+
+    python setup.py install
+
+### Installation Features
+
+After installing with Option B or C, you get:
+
+- **Console command**: `canmonitor` available system-wide
+- **Module execution**: `python -m canmonitor` also works
+- **Automatic dependencies**: All required packages installed automatically
+- **Cross-platform support**: Works on Windows, macOS, and Linux
+
 ## Usage
 
-Launch the script for live CAN monitoring:
+### Running the Application
+
+After installation, you can run canmonitor in multiple ways:
+
+**Using the console command (if installed with pip install -e .):**
 
     canmonitor <serial device> <baud rate>
-
-Or for offline file analysis:
-
     canmonitor -f <file name>
+
+**Using module execution (works with any installation method):**
+
+    python -m canmonitor <serial device> <baud rate>
+    python -m canmonitor -f <file name>
+
+**Using the script directly (basic setup only):**
+
+    python canmonitor/canmonitor.py <serial device> <baud rate>
+    python canmonitor/canmonitor.py -f <file name>
+
+### Command Options
+
+- **Live monitoring**: `canmonitor <serial_device> <baud_rate>`
+- **File analysis**: `canmonitor -f <candump_file>`
+- **Help**: `canmonitor --help` or `canmonitor -h`
 
 Press Q at any time to exit the script.
 
@@ -78,10 +110,21 @@ See [Development Setup Guide](DEV_SETUP.md) for detailed instructions on:
 - VS Code configuration
 - Contributing guidelines
 
-## Example
+## Examples
+
+### Using console command
 
     canmonitor /dev/tty.usbmodem1451 115200
     canmonitor -f can_log.log
+
+### Using module execution
+
+    python -m canmonitor /dev/tty.usbmodem1451 115200
+    python -m canmonitor -f can_log.log
+
+### View help
+
+    canmonitor --help
     
 ![Screenshot](http://i.imgur.com/1nqCQKz.png)
 
