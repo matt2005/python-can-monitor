@@ -41,45 +41,46 @@ class CanmonitorTestCase(unittest.TestCase):
             int_set = canmonitor.parse_ints(f_obj)
         self.assertEqual(int_set, {1, 2, 15, 3, 4, 57, 7})
 
-    def test_column_width_fix_for_issue_18(self):
-        """Test that column width is sufficient to prevent ID overlap (Issue #18)."""
-        # Test the column width constant
-        # According to issue #18, column_width should be 100 to prevent overlap
-        # of 9-digit decimal IDs with hex IDs
-        # This is a regression test to ensure the fix remains in place
+    def test_dynamic_column_width_fix_for_32bit_ids(self):
+        """Test that column width supports full 32-bit CAN ID range."""
+        # Test the dynamic column width system that replaces the hardcoded
+        # Issue #18 fix with a more robust solution for 32-bit CAN IDs
 
-        # We can't easily test the actual display without curses, but we can test
-        # that the constants are set correctly to prevent the overlap issue
+        # The new system should handle the full 32-bit range:
+        # - Max 32-bit unsigned: 4,294,967,295 (10 digits)
+        # - Max 32-bit hex: FFFFFFFF (8 characters)
 
-        # The critical spacing values from the fix:
-        # - column_width should be 100 (was 50)
-        # - Hex ID offset should be 18 characters from decimal ID start
-        # - Bytes column should have enough spacing (25 + bytes_column_start)
-        # - Text column should have enough spacing (30 + text_column_start)
+        # Test maximum 32-bit unsigned integer
+        max_32bit_unsigned = 4294967295  # 0xFFFFFFFF
 
-        # These values are embedded in the display_loop function, so we test
-        # indirectly by ensuring large IDs format correctly
+        # Verify this is indeed 10 digits
+        decimal_str = str(max_32bit_unsigned)
+        self.assertEqual(len(decimal_str), 10)
+        self.assertEqual(decimal_str, "4294967295")
 
-        # Test formatting of large 9-digit decimal ID (like Chevy Colorado)
-        large_decimal_id = 536870912  # 9 digits, 0x20000000 in hex
+        # Verify hex representation is 8 characters
+        hex_str = "%X" % max_32bit_unsigned
+        self.assertEqual(len(hex_str), 8)
+        self.assertEqual(hex_str, "FFFFFFFF")
 
-        # Verify the decimal representation is indeed 9 digits
-        decimal_str = str(large_decimal_id)
-        self.assertEqual(len(decimal_str), 9)
+        # Test the dynamic field width calculations
+        max_decimal_width = 10  # As defined in canmonitor.py
+        max_hex_width = 8       # As defined in canmonitor.py
+        id_spacing = 2          # Minimum gap between decimal and hex
 
-        # Verify the hex representation
-        hex_str = "%X" % large_decimal_id
-        self.assertEqual(hex_str, "20000000")
+        # Verify the spacing calculation
+        hex_offset = max_decimal_width + id_spacing
+        self.assertEqual(hex_offset, 12)
 
-        # Test that we can format both without issues
-        decimal_formatted = str(large_decimal_id).ljust(5)
-        hex_formatted = ("%X" % large_decimal_id).ljust(5)
+        # Test formatting with the dynamic widths
+        decimal_formatted = str(max_32bit_unsigned).ljust(max_decimal_width)
+        hex_formatted = ("%X" % max_32bit_unsigned).ljust(max_hex_width)
 
-        # The fix ensures there's enough space (18 chars) between decimal and hex
-        # With 9-digit decimal, we need sufficient separation from hex
-        # The fix uses 18 chars offset, which should be sufficient
-        self.assertEqual(len(decimal_formatted), 9)  # 9 digits, no padding needed
-        self.assertEqual(len(hex_formatted), 8)      # 8 hex chars, no padding needed
+        # Should be exact fit (no padding needed for max values)
+        self.assertEqual(len(decimal_formatted), 10)
+        self.assertEqual(len(hex_formatted), 8)
+        self.assertEqual(decimal_formatted, "4294967295")
+        self.assertEqual(hex_formatted, "FFFFFFFF")
 
     def test_id_formatting_edge_cases(self):
         """Test ID formatting for various edge cases related to Issue #18."""
@@ -93,8 +94,9 @@ class CanmonitorTestCase(unittest.TestCase):
             (4095, "4095", "FFF"),  # 4 decimal, 3 hex
             (65535, "65535", "FFFF"),  # 5 decimal, 4 hex
             (1048575, "1048575", "FFFFF"),  # 7 decimal, 5 hex
-            (536870912, "536870912", "20000000"),  # 9 decimal, 8 hex (Issue #18 case)
-            (2147483647, "2147483647", "7FFFFFFF"),  # Max 32-bit signed int
+            (536870912, "536870912", "20000000"),  # 9 decimal, 8 hex (Issue #18)
+            (2147483647, "2147483647", "7FFFFFFF"),  # Max 32-bit signed (10 digits)
+            (4294967295, "4294967295", "FFFFFFFF"),  # Max 32-bit unsigned (10 digits)
         ]
 
         for frame_id, expected_decimal, expected_hex in test_cases:
@@ -115,37 +117,44 @@ class CanmonitorTestCase(unittest.TestCase):
                     # Ensure there would be no truncation
                     self.assertEqual(decimal_formatted.strip(), expected_decimal)
 
-    def test_column_spacing_prevents_overlap_issue_18(self):
-        """Test that the column spacing fix prevents ID overlap."""
-        # Simulate the display layout constants from canmonitor.py
+    def test_dynamic_spacing_prevents_overlap_32bit(self):
+        """Test that the dynamic spacing prevents ID overlap for 32-bit IDs."""
+        # Simulate the dynamic layout constants from canmonitor.py
         id_column_start = 2
-        hex_offset = 18  # Offset for hex ID from decimal ID start
+        max_decimal_width = 10  # Support for 32-bit unsigned integers
+        id_spacing = 2          # Minimum gap between decimal and hex
+        hex_offset = max_decimal_width + id_spacing  # Dynamic offset
 
-        # Test case: 9-digit decimal ID that caused the original issue
-        large_id = 536870912  # "536870912" (9 chars)
-        decimal_str = str(large_id)
+        # Test case: Maximum 32-bit unsigned integer
+        max_32bit_id = 4294967295  # "4294967295" (10 chars)
+        decimal_str = str(max_32bit_id)
 
         # Calculate positions as done in the actual code
         decimal_pos = id_column_start  # Position 2
-        hex_pos = id_column_start + hex_offset  # Position 20
+        hex_pos = id_column_start + hex_offset  # Position 2 + 12 = 14
 
-        # The decimal ID ends at position 2 + 9 = 11
+        # The decimal ID ends at position 2 + 10 = 12
         decimal_end_pos = decimal_pos + len(decimal_str)
 
-        # The hex ID starts at position 20
+        # The hex ID starts at position 14
         # There should be sufficient gap to prevent overlap
         gap = hex_pos - decimal_end_pos
 
-        # Verify there's enough space (at least 1 character gap)
-        self.assertGreaterEqual(
-            gap, 1,
-            f"Insufficient gap between decimal ({decimal_end_pos}) "
-            f"and hex ({hex_pos}) positions"
-        )
+        # Verify there's exactly the expected spacing
+        self.assertEqual(gap, id_spacing,
+                         f"Expected {id_spacing} chars gap, got {gap}")
 
-        # Verify this prevents the overlap that existed before Issue #18 fix
-        original_spacing_would_overlap = (decimal_end_pos > hex_pos)
-        self.assertFalse(
-            original_spacing_would_overlap,
-            "Layout should prevent overlap that existed before Issue #18 fix"
-        )
+        # Verify this handles the maximum case without overlap
+        no_overlap = (decimal_end_pos <= hex_pos)
+        self.assertTrue(no_overlap,
+                        f"Decimal ends at {decimal_end_pos}, "
+                        f"hex starts at {hex_pos} - should not overlap")
+
+        # Test that this also works for the original Issue #18 case (9 digits)
+        issue_18_decimal_end = id_column_start + 9
+
+        # Should have even more spacing than needed for Issue #18
+        issue_18_gap = hex_pos - issue_18_decimal_end
+        self.assertGreaterEqual(
+            issue_18_gap, id_spacing,
+            "Should provide adequate spacing for Issue #18 case too")

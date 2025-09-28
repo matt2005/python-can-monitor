@@ -105,21 +105,31 @@ def main(stdscr, reading_thread):
         ):  # Timeout needed in order to react to user input
             max_y, max_x = win.getmaxyx()
 
+            # Dynamic column sizing for 32-bit CAN IDs
+            max_decimal_width = 10  # Max 32-bit unsigned: 4,294,967,295 (10 digits)
+            max_hex_width = 8       # Max 32-bit hex: FFFFFFFF (8 characters)
+            id_spacing = 2          # Minimum gap between decimal and hex
+
+            decimal_field_width = max_decimal_width
+            hex_field_width = max_hex_width
+            hex_offset = decimal_field_width + id_spacing
+
+            # Calculate column positions
             column_width = 100
             id_column_start = 2
-            bytes_column_start = 13
-            text_column_start = 38
+            bytes_column_start = id_column_start + hex_offset + hex_field_width + 3
+            text_column_start = bytes_column_start + 25
 
             # Compute row/column counts according to the window size and borders
             row_start = 3
             lines_per_column = max_y - (1 + row_start)
             num_columns = (max_x - 2) // column_width
 
-            # Setting up column headers
+            # Setting up column headers with dynamic positioning
             for i in range(0, num_columns):
-                win.addstr(1, id_column_start + i * column_width, "ID")
-                win.addstr(1, 25 + bytes_column_start + i * column_width, "Bytes")
-                win.addstr(1, 30 + text_column_start + i * column_width, "Text")
+                win.addstr(1, id_column_start + i * column_width, "ID (Dec/Hex)")
+                win.addstr(1, bytes_column_start + i * column_width, "Bytes")
+                win.addstr(1, text_column_start + i * column_width, "Text")
 
             win.addstr(3, id_column_start, "Press 'q' to quit")
 
@@ -138,29 +148,32 @@ def main(stdscr, reading_thread):
 
                     msg_str = format_data_ascii(msg)
 
-                    # print frame ID in decimal and hex
+                    # print frame ID in decimal and hex with dynamic field widths
+                    decimal_str = str(frame_id).ljust(decimal_field_width)
+                    hex_str = ("%X" % frame_id).ljust(hex_field_width)
+
                     win.addstr(
                         row,
                         id_column_start + current_column * column_width,
-                        "%s" % str(frame_id).ljust(5),
+                        decimal_str,
                     )
                     win.addstr(
                         row,
-                        id_column_start + 18 + current_column * column_width,
-                        "%X".ljust(5) % frame_id,
+                        id_column_start + hex_offset + current_column * column_width,
+                        hex_str,
                     )
 
                     # print frame bytes
                     win.addstr(
                         row,
-                        25 + bytes_column_start + current_column * column_width,
+                        bytes_column_start + current_column * column_width,
                         msg_bytes.ljust(28),
                     )
 
                     # print frame text
                     win.addstr(
                         row,
-                        30 + text_column_start + current_column * column_width,
+                        text_column_start + current_column * column_width,
                         msg_str.ljust(8),
                     )
 
